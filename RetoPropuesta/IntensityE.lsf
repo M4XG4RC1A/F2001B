@@ -1,0 +1,26 @@
+setanalysis("wavelength",1.55e-6);
+
+dataEx = getdata("FDE::data::mode1","Ex");
+dataEy = getdata("FDE::data::mode1","Ey");
+dataEz = getdata("FDE::data::mode1","Ez");
+
+dataX = getdata("FDE::data::mode1","x");
+dataY = getdata("FDE::data::mode1","y");
+
+intE = abs(dataEx)^2+abs(dataEy)^2+abs(dataEz)^2;
+
+image(dataX*1e6,dataY*1e6,intE,"x(microns)","y(microns)","Ex");
+
+#wavelength
+setanalysis("wavelength",1.5e-6);
+setanalysis("stop wavelength",1.6e-6);
+
+#Sweep
+frequencysweep;
+
+#Get sweep
+Slambda = c/getdata("FDE::data::frequencysweep","f_D")*1e6;
+Sneff = real(getdata("FDE::data::frequencysweep","neff"));
+Svg = real(getdata("FDE::data::frequencysweep","vg"));
+Sng = c/Svg;
+

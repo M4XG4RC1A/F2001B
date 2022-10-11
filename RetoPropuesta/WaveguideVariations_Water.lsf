@@ -1,0 +1,97 @@
+## Main Code
+
+## Water waveguide
+
+#Set refractive indexes
+indexes = [133,143,153];
+
+#Set waveguide min and max heigh
+heights = [2153;2231]; #Micrometers*10
+
+#Set waveguide min and max width
+widths = [4700;5100]; #Micrometers*10
+
+#Calculate Corners method
+for (index=indexes) {
+for (hwg=heights) {
+    for (w=widths) {
+        #Set mode to layout
+        switchtolayout;
+        
+        #Set dimensions for waveguide
+        setnamed('Si','x span',w/10*1e-9);
+        setnamed('Si','y span',hwg/10*1e-9);        
+        setnamed('Water','index',index/100);
+        
+        #find modes
+        setanalysis("wavelength",1.55e-6);
+        findmodes;
+        selectmode(1);
+        
+        #Save data of simple mode to variables
+        neff = getdata("FDE::data::mode1","neff");
+        ng = getdata("FDE::data::mode1","ng");
+        TE = getdata("FDE::data::mode1","TE polarization fraction");
+        dataEx = getdata("FDE::data::mode1","Ex");
+        dataEy = getdata("FDE::data::mode1","Ey");
+        dataEz = getdata("FDE::data::mode1","Ez");
+        dataX = getdata("FDE::data::mode1","x");
+        dataY = getdata("FDE::data::mode1","y");
+        intE = abs(dataEx)^2+abs(dataEy)^2+abs(dataEz)^2;
+        
+        #Sweep
+        setanalysis("wavelength",1.5e-6);
+        setanalysis("stop wavelength",1.6e-6);
+        frequencysweep;
+        
+        #Save data of sweep
+        Slambda = c/getdata("FDE::data::frequencysweep","f_D")*1e6;
+        Sneff = real(getdata("FDE::data::frequencysweep","neff"));
+        Svg = real(getdata("FDE::data::frequencysweep","vg"));
+        Sng = c/Svg;
+
+        #Save parameters of waveguide (Matlab/Lumerical)
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_neff",neff);
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_ng",ng); 
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_TE",TE); 
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_Ex",dataEx); 
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_Ey",dataEy); 
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_Ez",dataEz);
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_X",dataX); 
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_Y",dataY);
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_IntE",intE);
+        
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_sweepLambda",Slambda); 
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_sweepNeff",Sneff); 
+        matlabsave("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_sweepNg",Sng); 
+                
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_neff",neff);
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_ng",ng); 
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_TE",TE); 
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_Ex",dataEx); 
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_Ey",dataEy); 
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_Ez",dataEz);
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_X",dataX); 
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_Y",dataY);
+        
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_sweepLambda",Slambda); 
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_sweepNeff",Sneff); 
+        savedata("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_sweepNg",Sng);
+        
+        #Save Images
+            #Effective index graph
+            plot(Slambda,Sneff,"Wavelength (microns)","Effective Index");
+            legend("neff");
+            exportfigure("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_neffvslambda");
+            
+            #Group index graph
+            plot(Slambda,Sng,"Wavelength (microns)","Group Index");
+            legend("ng");
+            exportfigure("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_ngvslambda");
+            
+            #Compact model for waveguide
+            image(dataX*1e6,dataY*1e6,intE,"x(microns)","y(microns)","Compact Model");
+            exportfigure("./WgH2O_"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"/wgH2O"+num2str(index)+"_"+num2str(hwg)+"_"+num2str(w)+"_CompactModel");            
+    }
+}
+}

@@ -1,0 +1,53 @@
+#Change to layout mode
+#Check mode
+# ?layoutmode;
+#Change to layoutmode
+#switchtolayout;
+
+#Select object
+#select
+
+#set property
+#set()
+#setnamed()
+
+#get propertie
+#get()
+#getnamed()
+
+#save data
+#savedata("filename",variable)
+
+#Save txt
+#write("filename",variable)
+
+#Save matlab
+#matlabsave("filename",variable)
+
+#Plot
+#plot(x,y,'xlabel','ylabel','title')
+#legend('Val1','Val2')
+
+## Main Code
+
+#Set diferent radious to analize
+rads = 10:10:20;
+
+for (r=rads){
+    #Set mode to layout
+    switchtolayout;
+    #Show process on prompt    
+    ?r;
+    #Set radious to NP
+    setnamed('Au_NP','radius',r*1e-9);
+    #run code
+    run;
+    #Save data to variables
+    outAbs = getresult('abs','sigma');
+    outScat = getresult('scat','sigma');
+    #Save to matlab file
+    matlabsave("./rad"+num2str(r)+"_Abs",outAbs);
+    matlabsave("./rad"+num2str(r)+"_Scat",outScat);
+}
+
+print("end")

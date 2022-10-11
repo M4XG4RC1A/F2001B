@@ -1,0 +1,191 @@
+#Change to layout mode
+#Check mode
+# ?layoutmode;
+#Change to layoutmode
+#switchtolayout;
+
+#Select object
+#select
+
+#set property
+#set()
+#setnamed()
+
+#get propertie
+#get()
+#getnamed()
+
+#save data
+#savedata("filename",variable)
+
+#Save txt
+#write("filename",variable)
+
+#Save matlab
+#matlabsave("filename",variable)
+
+#Plot
+#plot(x,y,'xlabel','ylabel','title')
+#legend('Val1','Val2')
+
+
+
+##FDE (eigenmode solver
+
+#Find modes
+#findmodes;
+
+#Get data modes
+#data = getdata("FDE::data::mode1",value);
+#surface_normal  dimension  f  neff  ng  loss  TE polarization fraction  waveguide TE/TM fraction  mode effective area
+#x  y  z  Ex  Ey  Ez  Hx  Hy  Hz
+
+#Plot Mode
+#image(dataX*1e6,dataY*1e6,dataEx,"x(microns)","y(microns)","Ex");
+#exportfigure("Value")
+
+
+
+
+
+
+## Main Code
+
+## Silicon waveguide
+
+#Set waveguide min and max heigh
+heights = [2153;2231]; #Micrometers
+
+#Set waveguide min and max width
+widths = [470;510]; #Micrometers
+
+#Calculate Corners method
+for (h=heights) {
+    for (w=widths) {
+        #Set mode to layout
+        switchtolayout;
+        
+        #Set dimensions for waveguide
+        setnamed('SiO2','x span',w/10*1e-9);
+        setnamed('SiO2','x span',h*1e-9);
+        
+        #find modes
+        setanalysis("wavelength",1.55e-6);
+        findmodes;
+        selectmode(1);
+        
+        #Save data of simple mode to variables
+        neff = getdata("FDE::data::mode1","neff");
+        ng = getdata("FDE::data::mode1","ng");
+        TE = getdata("FDE::data::mode1","TE polarization fraction");
+        dataEx = getdata("FDE::data::mode1","Ex");
+        dataEy = getdata("FDE::data::mode1","Ey");
+        dataEz = getdata("FDE::data::mode1","Ez");
+        dataX = getdata("FDE::data::mode1","x");
+        dataY = getdata("FDE::data::mode1","y");
+        
+        #Sweep
+        setanalysis("wavelength",1.5e-6);
+        setanalysis("stop wavelength",1.6e-6);
+        frequencysweep;
+        
+        #Save data of sweep
+        Slambda = c/getdata("FDE::data::frequencysweep","f_D")*1e6;
+        Sneff = real(getdata("FDE::data::frequencysweep","neff"));
+        Svg = real(getdata("FDE::data::frequencysweep","vg"));
+        Sng = c/Svg;
+
+        #Save parameters of waveguide (Matlab/Lumerical)
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_neff",neff);
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_ng",ng); 
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_TE",TE); 
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_Ex",dataEx); 
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_Ey",dataEy); 
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_Ez",dataEz);
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_X",dataX); 
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_Y",dataY);
+        
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_sweepLambda",Slambda); 
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_sweepNeff",Sneff); 
+        matlabsave("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_sweepNg",Sng); 
+                
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_neff",neff);
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_ng",ng); 
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_TE",TE); 
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_Ex",dataEx); 
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_Ey",dataEy); 
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_Ez",dataEz);
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_X",dataX); 
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_Y",dataY);
+        
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_sweepLambda",Slambda); 
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_sweepNeff",Sneff); 
+        savedata("./WgSiO2_"+num2str(h)+"_"+num2str(w)+"/wgSiO2"+num2str(h)+"_"+num2str(w)+"_sweepNg",Sng);
+        
+        #Save Images
+            #Effective index graph
+            
+            #Group index graph
+            
+            #Compact model for waveguide
+            
+    }
+}
+
+#Find Max and Min values for Group Index and Effective Index
+
+
+
+
+
+
+## Water waveguide
+
+#Set refractive indexes
+indexes = [133,143,153];
+
+#Set waveguide min and max heigh
+heights = []; #Micrometers
+
+#Set waveguide min and max width
+widths = []; #Micrometers
+
+#Set refractive index of waveguide
+
+#Calculate Corners method
+for (n=indexes) {
+    for (h=heights) {
+        for (w=widths) {
+            #Set mode to layout
+            switchtolayout;
+            
+            #Set refractive index
+            setnamed('Au_NP','radius',r*1e-9);
+            
+            #Set dimensions for waveguide
+            setnamed('Au_NP','radius',r*1e-9);
+            setnamed('Au_NP','radius',r*1e-9);
+            
+            #run code
+            run;
+            
+            #Save data to variables
+            outAbs = getresult('abs','sigma');
+            outScat = getresult('scat','sigma');
+            
+            #Save parameters of waveguide (Matlab/Lumerical)
+            
+            
+            #Save Images
+                #Effective index graph
+                
+                #Group index graph
+                
+                #Compact model for waveguide
+                
+        }
+    }
+
+#Find Max and Min values for Group Index and Effective Index
+
+

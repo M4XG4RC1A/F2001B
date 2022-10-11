@@ -1,0 +1,48 @@
+indxs = [133:10:153];
+
+leg = cell(length(indxs));
+
+maxExt = ones(length(indxs));
+
+for (ind=indxs) {
+    loaddata("indx"+num2str(ind)+"_Abs.lsd");
+    plot(outAbs.lambda(find(outAbs.lambda*1e9>400))*1e9,outAbs.sigma(find(outAbs.lambda*1e9>400))*1e18,"Indice","σ (nm^2)","Absorcion");
+    holdon;
+    leg{(ind-123)/10} = "Indx= "+num2str(ind/100);
+}
+
+legend(leg);
+exportfigure("_FinalAbs_Index");
+holdoff;
+
+for (ind=indxs) {
+    loaddata("indx"+num2str(ind)+"_Scat.lsd");
+    plot(outScat.lambda(find(outScat.lambda*1e9>400))*1e9,outScat.sigma(find(outScat.lambda*1e9>400))*1e18,"Indice","σ (nm^2)","Scattering");
+    holdon;
+    leg{(ind-123)/10} = "Indx= "+num2str(ind/100);
+}
+
+legend(leg);
+exportfigure("_FinalScat_Index");
+holdoff;
+
+for (ind=indxs) {
+    loaddata("indx"+num2str(ind)+"_Abs.lsd");
+    loaddata("indx"+num2str(ind)+"_Scat.lsd");
+    sigmaExt = outScat.sigma(find(outScat.lambda*1e9>400))*1e18+outAbs.sigma(find(outAbs.lambda*1e9>400))*1e18;
+    lambdaExt = outScat.lambda(find(outScat.lambda*1e9>400))*1e9;
+    plot(lambdaExt,sigmaExt,"Indice","σ (nm^2)","Extincion");
+    holdon;
+    leg{(ind-123)/10} = "Indx= "+num2str(ind/100);
+    maxExt((ind-123)/10) = lambdaExt(find(sigmaExt==max(sigmaExt)));
+}
+
+legend(leg);
+exportfigure("_FinalExt_Index");
+holdoff;
+
+fit = polyfit(indxs/100,maxExt,1);
+lfit = y_fit = fit(1) + fit(2)*indxs/100;
+plot(indxs/100,maxExt,lfit,"Indice","λmax (nm)","Indice vs Radio");
+legend("Data","Fit");
+exportfigure("_FinalLambdavsIndex");

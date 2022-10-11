@@ -1,0 +1,31 @@
+## Main Code
+
+#Set diferent radious to analize
+inds = 133:10:153;
+
+switchtolayout;
+
+#Set radious
+setnamed('Au_NP','radius',25*1e-9);
+
+for (indx=inds){
+    #Set mode to layout
+    switchtolayout;
+    #Show process on prompt    
+    ?indx/100;
+    #Set radious to NP
+    setnamed('FDTD','index',indx/100);
+    #run code
+    run;
+    #Save data to variables
+    outAbs = getresult('abs','sigma');
+    outScat = getresult('scat','sigma');
+    #Save to matlab file
+    matlabsave("./indx"+num2str(indx)+"_Abs",outAbs);
+    matlabsave("./indx"+num2str(indx)+"_Scat",outScat);
+    #Save lumerical data
+    savedata("./indx"+num2str(indx)+"_Abs",outAbs);
+    savedata("./indx"+num2str(indx)+"_Scat",outScat);
+};
+
+print("end");

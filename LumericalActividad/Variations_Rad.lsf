@@ -1,0 +1,29 @@
+## Main Code
+
+#Set diferent radious to analize
+rads = 10:10:70;
+
+#Set index of water
+setnamed('FDTD','index',1.33);
+
+for (r=rads){
+    #Set mode to layout
+    switchtolayout;
+    #Show process on prompt    
+    ?r;
+    #Set radious to NP
+    setnamed('Au_NP','radius',r*1e-9);
+    #run code
+    run;
+    #Save data to variables
+    outAbs = getresult('abs','sigma');
+    outScat = getresult('scat','sigma');
+    #Save to matlab file
+    matlabsave("./rad"+num2str(r)+"_Abs",outAbs);
+    matlabsave("./rad"+num2str(r)+"_Scat",outScat);
+    #Save lumerical data
+    savedata("./rad"+num2str(r)+"_Abs",outAbs);
+    savedata("./rad"+num2str(r)+"_Scat",outScat);
+}
+
+print("end")
